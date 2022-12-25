@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { fetchProducts } from "../slices/productsSlice";
 
 import { Row, Col } from "react-bootstrap";
@@ -8,13 +8,14 @@ import Message from "../components/Message";
 import Loader from "../components/Loader";
 
 const HomeScreen = () => {
-  // const [products, setProducts] = useState([]);
   const dispatch = useDispatch();
   const { products, errorMessage, productsStatus } = useSelector(
     (state) => state.products
   );
-
   useEffect(() => {
+    
+  }, []);
+  useMemo(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
 

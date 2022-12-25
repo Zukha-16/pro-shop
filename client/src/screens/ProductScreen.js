@@ -1,22 +1,32 @@
-import axios from "axios";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchSingleProduct } from "../slices/singleProductSlice";
 
 import { Link } from "react-router-dom";
 import { Row, Col, Image, ListGroup, Card, Button } from "react-bootstrap";
 import Rating from "../components/Rating";
+import Message from "../components/Message";
+import Loader from "../components/Loader";
 
 const ProductScreen = () => {
-  const [product, setProduct] = useState({});
   const { id } = useParams();
+  const dispatch = useDispatch();
+  const {
+    singleProduct: product,
+    errorMessage,
+    singleProductStatus,
+  } = useSelector((state) => state.singleProduct);
 
   useEffect(() => {
-    const fetchProduct = async () => {
-      const { data } = await axios.get(`/api/products/${id}`);
-      setProduct(data);
-    };
-    fetchProduct();
-  }, []);
+    dispatch(fetchSingleProduct(id));
+  }, [dispatch, id]);
+
+  if (singleProductStatus === "loading") {
+    return <Loader />;
+  } else if (singleProductStatus === "error") {
+    return <Message variant={"danger"}>{errorMessage}</Message>;
+  }
 
   return (
     <>

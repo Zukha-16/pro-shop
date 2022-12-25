@@ -1,5 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import products from "./slices/productsSlice";
+import singleProduct from "./slices/singleProductSlice";
+
 const stringMiddleware = () => (next) => (action) => {
   if (typeof action === "string") {
     return next({
@@ -10,7 +12,7 @@ const stringMiddleware = () => (next) => (action) => {
 };
 
 const store = configureStore({
-  reducer: { products },
+  reducer: { products, singleProduct },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(stringMiddleware),
   devTools: process.env.NODE_ENV !== "production",
