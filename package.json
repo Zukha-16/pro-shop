@@ -15,9 +15,11 @@
   "author": "Zukhriddin Mekhrullaev",
   "license": "ISC",
   "dependencies": {
+    "colors": "^1.4.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "mongoose": "^6.8.1"
   },
   "devDependencies": {
     "concurrently": "^7.6.0",
