@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { fetchProducts } from "../slices/productsSlice";
 
 import { Row, Col } from "react-bootstrap";
@@ -12,10 +12,8 @@ const HomeScreen = () => {
   const { products, errorMessage, productsStatus } = useSelector(
     (state) => state.products
   );
+
   useEffect(() => {
-    
-  }, []);
-  useMemo(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
 
