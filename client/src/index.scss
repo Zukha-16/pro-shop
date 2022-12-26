@@ -45,3 +45,19 @@ h3 {
         margin: auto 0;
     }
 }
+
+.inner_div {
+    div {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+}
+h1 {
+    font-size: 1.8rem;
+    padding: .2rem;
+}
+h2 {
+    font-size: 1.4rem;
+    padding: .5rem;
+}
