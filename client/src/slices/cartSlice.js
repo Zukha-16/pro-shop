@@ -5,8 +5,18 @@ const cartItemsFromStorage = localStorage.getItem("cartItems")
   ? JSON.parse(localStorage.getItem("cartItems"))
   : [];
 
+const shippingAddressFromStorage = localStorage.getItem("shippingAddress")
+  ? JSON.parse(localStorage.getItem("shippingAddress"))
+  : {};
+
+const paymentMethodFromStorage = localStorage.getItem("paymentMethod")
+  ? JSON.parse(localStorage.getItem("paymentMethod"))
+  : {};
+
 const initialState = {
   cartItems: cartItemsFromStorage,
+  shippingAddress: shippingAddressFromStorage,
+  paymentMethod: paymentMethodFromStorage,
 };
 
 export const addToCart = createAsyncThunk(
@@ -39,6 +49,20 @@ const cartSlice = createSlice({
       );
       localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
     },
+    saveShippingAddress: (state, action) => {
+      state.shippingAddress = action.payload;
+      localStorage.setItem(
+        "shippingAddress",
+        JSON.stringify(state.shippingAddress)
+      );
+    },
+    savePaymentMethod: (state, action) => {
+      state.paymentMethod = action.payload;
+      localStorage.setItem(
+        "paymentMethod",
+        JSON.stringify(state.paymentMethod)
+      );
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -61,5 +85,6 @@ const cartSlice = createSlice({
 });
 
 const { actions, reducer } = cartSlice;
-export const { removeFromCart } = actions;
+export const { removeFromCart, saveShippingAddress, savePaymentMethod } =
+  actions;
 export default reducer;

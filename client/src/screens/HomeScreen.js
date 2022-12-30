@@ -17,7 +17,7 @@ const HomeScreen = () => {
     if (products.length === 0) {
       dispatch(fetchProducts());
     }
-  }, [dispatch]);
+  }, [dispatch, products.length]);
 
   const ProductsList = () => {
     if (productsStatus === "loading") {
