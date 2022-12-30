@@ -9,12 +9,15 @@ const initialState = {
   user: userFromStorage,
   errorMessage: "",
   userStatus: "idle",
+  userUpdateStatus: "idle",
 };
 
 export const userLogin = createAsyncThunk("user/login", async (userData) => {
   try {
     const { data } = await axios.post("/api/users/login", userData, {
-      "Content-Type": "application/json",
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
     return data;
   } catch (error) {
@@ -27,7 +30,9 @@ export const userRegister = createAsyncThunk(
   async (userData) => {
     try {
       const { data } = await axios.post("/api/users", userData, {
-        "Content-Type": "application/json",
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
       return data;
     } catch (error) {
@@ -35,6 +40,34 @@ export const userRegister = createAsyncThunk(
     }
   }
 );
+
+export const updateUserProfile = createAsyncThunk(
+  "user/updateProfile",
+  async (userData, { getState }) => {
+    try {
+      const { data } = await axios.put("/api/users/profile", userData, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getState().user.user.token}`,
+        },
+      });
+      return data;
+    } catch (error) {
+      throw new Error(error.response.data.message);
+    }
+  }
+);
+
+const actionFulfilled = (state, action) => {
+  state.userStatus = "succeeded";
+  state.user = action.payload;
+  state.errorMessage = "";
+  localStorage.setItem("user", JSON.stringify(action.payload));
+};
+const actionRejected = (state, action) => {
+  state.userStatus = "failed";
+  state.errorMessage = action.error.message;
+};
 
 const userSlice = createSlice({
   name: "user",
@@ -44,6 +77,9 @@ const userSlice = createSlice({
       state.user = null;
       localStorage.removeItem("user");
     },
+    resetUpdateMessage: (state) => {
+      state.userUpdateStatus = "idle";
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -51,34 +87,34 @@ const userSlice = createSlice({
         state.userStatus = "loading";
       })
       .addCase(userLogin.fulfilled, (state, action) => {
-        state.userStatus = "succeeded";
-        state.user = action.payload;
-        state.errorMessage = "";
-        localStorage.setItem("user", JSON.stringify(action.payload));
+        actionFulfilled(state, action);
       })
       .addCase(userLogin.rejected, (state, action) => {
-        state.userStatus = "failed";
-        state.errorMessage = action.error.message;
+        actionRejected(state, action);
       })
       .addCase(userRegister.pending, (state) => {
         state.userStatus = "loading";
       })
       .addCase(userRegister.fulfilled, (state, action) => {
-        state.userStatus = "succeeded";
+        actionFulfilled(state, action);
+      })
+      .addCase(userRegister.rejected, (state, action) => {
+        actionRejected(state, action);
+      })
+      .addCase(updateUserProfile.fulfilled, (state, action) => {
+        state.userUpdateStatus = "succeeded";
         state.user = action.payload;
         state.errorMessage = "";
         localStorage.setItem("user", JSON.stringify(action.payload));
       })
-      .addCase(userRegister.rejected, (state, action) => {
-        state.userStatus = "failed";
+      .addCase(updateUserProfile.rejected, (state, action) => {
+        state.userUpdateStatus = "failed";
         state.errorMessage = action.error.message;
       })
-      .addDefaultCase((state) => {
-        state.userStatus = "idle";
-      });
+      .addDefaultCase(() => {});
   },
 });
 
 const { actions, reducer } = userSlice;
-export const { userLogout } = actions;
+export const { userLogout, resetUpdateMessage } = actions;
 export default reducer;

@@ -14,7 +14,9 @@ const HomeScreen = () => {
   );
 
   useEffect(() => {
-    dispatch(fetchProducts());
+    if (products.length === 0) {
+      dispatch(fetchProducts());
+    }
   }, [dispatch]);
 
   const ProductsList = () => {
@@ -39,7 +41,7 @@ const HomeScreen = () => {
 
   return (
     <>
-      <h1>Lates products</h1>
+      <h1>Latest products</h1>
       <ProductsList />
     </>
   );
