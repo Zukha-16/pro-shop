@@ -4,6 +4,7 @@ import singleProduct from "./slices/singleProductSlice";
 import cart from "./slices/cartSlice";
 import user from "./slices/userSlice";
 import userDetails from "./slices/userDetailsSlice";
+import orders from "./slices/orderSlice";
 
 const stringMiddleware = () => (next) => (action) => {
   if (typeof action === "string") {
@@ -21,6 +22,7 @@ const store = configureStore({
     cart,
     user,
     userDetails,
+    orders,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(stringMiddleware),

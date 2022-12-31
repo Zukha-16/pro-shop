@@ -1,32 +1,68 @@
-import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { calculate } from "../utils/calculate";
+import { createOrder, resetOrderStatus } from "../slices/orderSlice";
+import { resetCart } from "../slices/cartSlice";
 import { Button, Row, Col, ListGroup, Image, Card } from "react-bootstrap";
 import Message from "../components/Message";
 import CheckoutSteps from "../components/CheckoutSteps";
-import { Link } from "react-router-dom";
+
 const PlaceOrderScreen = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const { shippingAddress, paymentMethod, cartItems } = useSelector(
     (state) => state.cart
   );
-  //   const dispatch = useDispatch();
-  //   const navigate = useNavigate();
-  const total = cartItems
-    .reduce((acc, item) => acc + item.qty * item.price, 0)
-    .toFixed(2);
+  const { ordersStatus, errorMessage } = useSelector((state) => state.orders);
 
-  const taxTotal = (total * 0.15).toFixed(2);
-  const subTotal = (total - taxTotal).toFixed(2);
-  const shipping = total > 500 ? 0 : (total * 0.1).toFixed(2);
-  const grandTotal = (
-    Number(subTotal) +
-    Number(shipping) +
-    Number(taxTotal)
-  ).toFixed(2);
+  useEffect(() => {
+    if (cartItems.length === 0) {
+      navigate("/");
+    }
+  }, [cartItems.length, navigate]);
+
+  const { subTotal, shipping, taxTotal, grandTotal, getTotal } =
+    calculate(cartItems);
+
+  const placeOrderHandler = () => {
+    dispatch(
+      createOrder({
+        orderItems: cartItems,
+        shippingAddress,
+        paymentMethod,
+        itemsPrice: subTotal,
+        shippingPrice: shipping,
+        taxPrice: taxTotal,
+        totalPrice: grandTotal,
+      })
+    ).then(() => {
+      setTimeout(() => {
+        dispatch(resetOrderStatus());
+        dispatch(resetCart());
+        navigate("/login?redirect=profile");
+      }, 3000);
+    });
+  };
+
   return (
     <>
       <CheckoutSteps step1 step2 step3 step4 />
       <Row>
         <Col md={8}>
           <ListGroup variant="flush">
+            {ordersStatus === "succeeded" && (
+              <Message variant="success">Order created successfully</Message>
+            )}
+            {ordersStatus === "failed" && errorMessage !== "" && (
+              <Message variant="danger">{errorMessage}</Message>
+            )}
+            {ordersStatus === "loading" && (
+              <Message variant="info">Creating order...</Message>
+            )}
+
             <ListGroup.Item>
               <h2>Shipping</h2>
               <p>
@@ -63,7 +99,8 @@ const PlaceOrderScreen = () => {
                           </Link>
                         </Col>
                         <Col md={4}>
-                          {item.qty} x ${item.price} = ${item.qty * item.price}
+                          {item.qty} x ${item.price} = $
+                          {getTotal(item.qty, item.price)}
                         </Col>
                       </Row>
                     </ListGroup.Item>
@@ -108,6 +145,7 @@ const PlaceOrderScreen = () => {
                   type="button"
                   className="btn-block"
                   disabled={cartItems.length === 0}
+                  onClick={placeOrderHandler}
                 >
                   Place Order
                 </Button>
